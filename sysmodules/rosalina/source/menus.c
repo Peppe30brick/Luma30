@@ -208,7 +208,7 @@ void RosalinaMenu_ShowCredits(void)
                 "  Homebrew Galaxy group and all the people\n"
                 "  in godmode9 group for their guidance\n"
                 "  and a lot of others people more\n"
-                "  Peppe30brick is NOT creator for mod 
+                "  Peppe30brick is NOT creator for mod\n" 
             ));
 
         Draw_FlushFramebuffer();
