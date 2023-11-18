@@ -29,5 +29,5 @@ jobs:
       run: make -j$(nproc --all)
     - uses: actions/upload-artifact@v3
       with:
-        name: Peppe30_customnluma3ds
-        path: arm9loaderhax.bin
+        name: Luma30_BETA2
+        path: boot.firm
