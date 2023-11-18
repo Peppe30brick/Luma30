@@ -30,4 +30,4 @@ jobs:
     - uses: actions/upload-artifact@v3
       with:
         name: Peppe30_customnluma3ds
-        path: boot.firm
+        path: arm9loaderhax.bin
