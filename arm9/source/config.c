@@ -958,7 +958,7 @@ void configMenu(bool oldPinStatus, u32 oldPinMode)
                                                  "I software commerciali filtrano\n"
                                                  "da soli queste combinazioni pero.",
                                                  
-                                                 "Togli il wifi al 3DS in modalita' riposo.\n\n"
+                                                 "Disabilita il wifi in modalita riposo.\n\n"
                                                  "Utile per risparmiare batteria ma impedira' ad\n"
                                                  "alcune funzioni come streetpass o\n"
                                                  "spotpass di funzionare in modalira riposo.\n\n"
@@ -1203,14 +1203,14 @@ void configMenu(bool oldPinStatus, u32 oldPinMode)
             //The user moved to a different option, print the old option in white and the new one in red. Only print 'x's if necessary
             if(oldSelectedOption < multiOptionsAmount)
             {
-                drawString(true, 10, multiOptions[oldSelectedOption].posY, COLOR_WHITE, multiOptionsText[oldSelectedOption]);
-                drawCharacter(true, 10 + multiOptions[oldSelectedOption].posXs[multiOptions[oldSelectedOption].enabled] * SPACING_X, multiOptions[oldSelectedOption].posY, COLOR_WHITE, selected);
+                drawString(true, 10, multiOptions[oldSelectedOption].posY, COLOR_RED, multiOptionsText[oldSelectedOption]);
+                drawCharacter(true, 10 + multiOptions[oldSelectedOption].posXs[multiOptions[oldSelectedOption].enabled] * SPACING_X, multiOptions[oldSelectedOption].posY, COLOR_RED, selected);
             }
             else
             {
                 u32 singleOldSelected = oldSelectedOption - multiOptionsAmount;
-                drawString(true, 10, singleOptions[singleOldSelected].posY, COLOR_WHITE, singleOptionsText[singleOldSelected]);
-                if(singleOptions[singleOldSelected].enabled) drawCharacter(true, 10 + SPACING_X, singleOptions[singleOldSelected].posY, COLOR_WHITE, selected);
+                drawString(true, 10, singleOptions[singleOldSelected].posY, COLOR_RED, singleOptionsText[singleOldSelected]);
+                if(singleOptions[singleOldSelected].enabled) drawCharacter(true, 10 + SPACING_X, singleOptions[singleOldSelected].posY, COLOR_RED, selected);
             }
 
             if(isMultiOption) drawString(true, 10, multiOptions[selectedOption].posY, COLOR_GREEN, multiOptionsText[selectedOption]);

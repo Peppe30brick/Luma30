@@ -100,9 +100,9 @@ void RosalinaMenu_SaveSettings(void)
         Draw_Lock();
         Draw_DrawString(10, 10, COLOR_TITLE, "Salva le impostazioni");
         if (R_SUCCEEDED(res))
-            Draw_DrawString(10, 30, COLOR_WHITE, "Operazione compiuta.");
+            Draw_DrawString(10, 30, COLOR_GREEN, "Operazione compiuta.");
         else
-            Draw_DrawFormattedString(10, 30, COLOR_WHITE, "Operazione fallita (0x%08lx).", res);
+            Draw_DrawFormattedString(10, 30, COLOR_RED, "Operazione fallita (0x%08lx).", res);
         Draw_FlushFramebuffer();
         Draw_Unlock();
     }
@@ -186,11 +186,11 @@ void RosalinaMenu_ShowCredits(void)
         Draw_Lock();
         Draw_DrawString(10, 10, COLOR_TITLE, "Rosalina -- Crediti Peppe30_luma3ds fork of customluma3ds by alexyo and coolgamer");
 
-        u32 posY = Draw_DrawString(10, 30, COLOR_WHITE, "CustomLuma3DS (c) 2021-2023 Alexyo21, coolgamer Peppe30_brick, Originale: Luma3DS (c) 2016-2023 AuroraWright, TuxSH") + SPACING_Y;
+        u32 posY = Draw_DrawString(10, 30, COLOR_GREEN, "Peppe30_luma (c) 2021-2023 Alexyo21, coolgamer Peppe30_brick, Originale: Luma3DS (c) 2016-2023 AuroraWright, TuxSH") + SPACING_Y;
 
-        posY = Draw_DrawString(10, posY + SPACING_Y, COLOR_WHITE, "3DSX codice di caricamento di fincs");
-        posY = Draw_DrawString(10, posY + SPACING_Y, COLOR_WHITE, "Networking code & basic GDB functionality by Stary");
-        posY = Draw_DrawString(10, posY + SPACING_Y, COLOR_WHITE, "InputRedirection by Stary (PoC by ShinyQuagsire)");
+        posY = Draw_DrawString(10, posY + SPACING_Y, COLOR_BLUE, "3DSX codice di caricamento di fincs");
+        posY = Draw_DrawString(10, posY + SPACING_Y, COLOR_BLUE, "Networking code & basic GDB functionality by Stary");
+        posY = Draw_DrawString(10, posY + SPACING_Y, COLOR_BLUE, "InputRedirection by Stary (PoC by ShinyQuagsire)");
 
         posY += 2 * SPACING_Y;
 
