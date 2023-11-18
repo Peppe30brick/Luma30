@@ -55,7 +55,7 @@
 #include "configExtra_ini.h"
 
 Menu rosalinaMenu = {
-    "Menu Skill CFW",
+    "Peppe30_rosalinamenu",
     {
         { "Screenshot NFTs", METHOD, .method = &RosalinaMenu_TakeScreenshot },
         { "Cambia luminosita schermo", METHOD, .method = &RosalinaMenu_ChangeScreenBrightness },
@@ -135,13 +135,13 @@ void RosalinaMenu_ShowDebugInfo(void)
         u32 posY = Draw_DrawString(10, 30, COLOR_WHITE, memoryMap);
         posY = Draw_DrawFormattedString(10, posY, COLOR_WHITE, "Kernel esterno PA: %08lx - %08lx\n\n", kextPa, kextPa + kextSize);
         posY = Draw_DrawFormattedString(
-            10, posY, COLOR_WHITE, "Versione Kernel: %lu.%lu-%lu\n",
+            10, posY, COLOR_BLUE, "Versione Kernel: %lu.%lu-%lu\n",
             GET_VERSION_MAJOR(kernelVer), GET_VERSION_MINOR(kernelVer), GET_VERSION_REVISION(kernelVer)
         );
         if (mcuFwVersion != 0)
         {
             posY = Draw_DrawFormattedString(
-                10, posY, COLOR_WHITE, "Versione MCU FW: %lu.%lu\n",
+                10, posY, COLOR_RED, "Versione MCU FW: %lu.%lu\n",
                 GET_VERSION_MAJOR(mcuFwVersion), GET_VERSION_MINOR(mcuFwVersion)
             );
         }
