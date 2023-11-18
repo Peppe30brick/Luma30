@@ -65,10 +65,10 @@ Menu rosalinaMenu = {
         { "Opzioni di debug...", MENU, .menu = &debuggerMenu },
         { "Configurazione di sistema...", MENU, .menu = &sysconfigMenu },
         { "Filtri schermo", MENU, .menu = &screenFiltersMenu },
-        { "Impostazioni New3DS", MENU, .menu = &N3DSMenu, .visibility = &menuCheckN3ds },
+        { "Impostazioni SOLO New3DS", MENU, .menu = &N3DSMenu, .visibility = &menuCheckN3ds },
         { "Trasmetti", MENU, .menu = &streamingMenu },
         { "Scambio rapido...", MENU, .menu = &quickSwitchersMenu },
-        { "Opzioni varie...", MENU, .menu = &miscellaneousMenu },
+        { "Opzioni aggiuntive...", MENU, .menu = &miscellaneousMenu },
         { "Salva le impostazioni", METHOD, .method = &RosalinaMenu_SaveSettings },
         { "Vai alla Home", METHOD, .method = &RosalinaMenu_HomeMenu },
         { "Opzioni Di Spegnimento...", METHOD, .method = &RosalinaMenu_PowerOptions },
@@ -196,19 +196,12 @@ void RosalinaMenu_ShowCredits(void)
 
         Draw_DrawString(10, posY, COLOR_BLUE,
             (
-                " Special thanks to:\n"
-                "  fincs, WinterMute, mtheall, piepie62,\n"
-                "  Luma3DS contributors, libctru contributors,\n"
-                "  and other people.\n\n"
-                "  Credits for this fork:\n"
-                "  DullPointer, Cooolgamer, PabloMK7, D0k3,\n"
-                "  ByebyeSky, Sono, Nutez, Core2Extreme\n"
-                "  Peach, Nikki, truedread, Aspargas2, Peppe,\n"
-                "  Simo, Manuele and all the people in his\n"
-                "  Homebrew Galaxy group and all the people\n"
-                "  in godmode9 group for their guidance\n"
-                "  and a lot of others people more\n"
-                "  Peppe30brick is NOT creator for mod\n" 
+                " Ciao sono peppe30 ringrazio molto"
+                "simo per avermi aiutato a creare la custom"
+                "questa e una mod di customluma3ds CHE NON E MIO"
+                "un saluto anche al team di luma 3ds"
+
+                "un ringraziamento a voi utenti che avete scelto di usare luma30 BETA2"
             ));
 
         Draw_FlushFramebuffer();
