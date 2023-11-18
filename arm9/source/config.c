@@ -841,7 +841,7 @@ void configMenu(bool oldPinStatus, u32 oldPinMode)
                                                "( ) Abilita filtri pers. di upscaling per DSi",
                                                "( ) Ammetti combo Sin+D/Su+Giu per DSi",
                                                "( ) Togli il wifi 3DS in modalita riposo",
-                                               "( ) Imposta UNITINFO come svilup.",
+                                               "( ) Imposta UNITINFO per avere fingerti una console sviluppatore.",
                                                "( ) Disabilita gli Arm11 exception handlers",                                               
                                                "( ) Abilita Rosalina nel SAFE_FIRM",
                                                "( ) Abilita il riavvio ist. + disabilita Errdisp",
@@ -849,7 +849,7 @@ void configMenu(bool oldPinStatus, u32 oldPinMode)
                                                "( ) Abilita il patching di Nand Cid e Otp hardware",
                                                                                               
                                                // Should always be the last entry
-                                               "\nSalva ed esci"
+                                               "\nritorna al menu home"
                                              };
 
     static const char *optionsDescription[]  = { "Seleziona l'EmuNAND predefinita.\n\n"
@@ -871,7 +871,7 @@ void configMenu(bool oldPinStatus, u32 oldPinMode)
 
                                                  "Abilita un blocco PIN.\n\n"
                                                  "Il PIN verra' chiesto ogni volta che\n"
-                                                 "CustomLuma3DS si avvia.\n\n"
+                                                 "Peppe30_luma3ds si avvia.\n\n"
                                                  "Puo' essere impostato a 4, 6 o 8 cifre.\n\n"
                                                  "I tasti ABXY e i tasti del DPAD\n"
                                                  "possono essere usati come chiavi del blocco.\n\n"
@@ -1109,7 +1109,7 @@ void configMenu(bool oldPinStatus, u32 oldPinMode)
 
         multiOptions[i].posY = endPos + SPACING_Y;
         endPos = drawString(true, 10, multiOptions[i].posY, COLOR_RED, multiOptionsText[i]);
-        drawCharacter(true, 10 + multiOptions[i].posXs[multiOptions[i].enabled] * SPACING_X, multiOptions[i].posY, COLOR_WHITE, selected);
+        drawCharacter(true, 10 + multiOptions[i].posXs[multiOptions[i].enabled] * SPACING_X, multiOptions[i].posY, COLOR_RED, selected);
     }
 
     endPos += SPACING_Y / 2;
@@ -1127,11 +1127,11 @@ void configMenu(bool oldPinStatus, u32 oldPinMode)
         {
             singleSelected = i;
             selectedOption = i + multiOptionsAmount;
-            color = COLOR_WHITE;
+            color = COLOR_RED;
         }
     }
 
-    drawString(false, 10, 10, COLOR_WHITE, optionsDescription[selectedOption]);
+    drawString(false, 10, 10, COLOR_RED, optionsDescription[selectedOption]);
     
     bool startPressed = false;
     //Boring configuration menu
