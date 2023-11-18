@@ -866,7 +866,7 @@ void configMenu(bool oldPinStatus, u32 oldPinMode)
                                                  "indicazioni di tasti).\n\n"
                                                  "\t* 'Dopo payloads' lo mostra\n"
                                                  "dopo.\n\n"
-                                                 "Modifica la durata nel file lumae.ini (3s\n"
+                                                 "Modifica la durata nel file luma.ini (3s\n"
                                                  "predefinita).",
 
                                                  "Abilita un blocco PIN.\n\n"
@@ -910,12 +910,17 @@ void configMenu(bool oldPinStatus, u32 oldPinMode)
                                                  "Per usare un EmuNAND differente dalla\n"
                                                  "predefinita, mantieni un tasto del DPAD\n"
                                                  "(Su/Destra/Giu'/Sinistra corrispondono alle EmuNANDs\n"
-                                                 "1/2/3/4).",
+                                                 "1/2/3/4)."
+                                                 "BENVENUTO IN LUMA30_BRICK BY PEPPE"
+                                                 "FORK OF CUSTOMLUMA3DS",
+                                            
 
                                                  "Abilita il caricamento di FIRM e moduli di\n"
                                                  "sistema esterni.\n\n"
                                                  "Questo non e' necessario nella maggior parte dei casi.\n\n"
-                                                 "Consulta la wiki per maggiori istruzioni.",
+                                                 "Consulta la wiki per maggiori istruzioni."
+                                                "BENVENUTO IN LUMA30_BRICK BY PEPPE"
+                                                "FORK OF CUSTOMLUMA3DS",
 
                                                  "Abilita l'oltrepassaggio della regione e\n"
                                                  "della configurazione di lingua\n"
