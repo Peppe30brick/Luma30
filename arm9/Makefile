@@ -9,10 +9,10 @@ endif
 TOPDIR ?= $(CURDIR)
 include $(DEVKITARM)/base_rules
 
-export REVISION			:=	v1.0.1
+export REVISION			:=	v1.1.0
 export VERSION_MAJOR	:=	1
-export VERSION_MINOR	:=	0
-export VERSION_BUILD	:=	1
+export VERSION_MINOR	:=	1
+export VERSION_BUILD	:=	0
 export COMMIT			:=	$(shell git rev-parse --short=8 HEAD)
 export IS_RELEASE		:=	1
 
@@ -45,7 +45,7 @@ export HBLDR_DEFAULT_3DSX_TID ?= 000400000D921E00
 # DATA is a list of directories containing data files
 # INCLUDES is a list of directories containing header files
 #---------------------------------------------------------------------------------
-APP_TITLE	:=	CustomLuma3DS-ITA
+APP_TITLE	:=	CustomLuma3DS
 TARGET		:=	$(notdir $(CURDIR))
 BUILD		:=	build
 SOURCES		:=	source source/fatfs source/fatfs/sdmmc

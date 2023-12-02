@@ -204,25 +204,25 @@ void Luminance_RecalibrateBrightnessDefaults(void)
         u32 posY = 30;
         
         posY = Draw_DrawString(10, posY, COLOR_RED, "WARNING: ") + SPACING_Y;
-        posY = Draw_DrawString(10, posY, COLOR_RED, "  * brightness preview not possible here\n    due to glitch risk.") + SPACING_Y;
-        posY = Draw_DrawString(10, posY, COLOR_RED, "  * test values via 'Change screen brightness'.") + SPACING_Y;
-        posY = Draw_DrawString(10, posY, COLOR_RED, "  * avoid frequent use to minimise NAND(!) wear.") + SPACING_Y;
-        posY = Draw_DrawString(10, posY, COLOR_RED, "  * 172 is only presumed(!) safe for prolonged use.") + (SPACING_Y*2);
+        posY = Draw_DrawString(10, posY, COLOR_WHITE, "  * brightness preview not possible here\n    due to glitch risk.") + SPACING_Y;
+        posY = Draw_DrawString(10, posY, COLOR_WHITE, "  * test values via 'Change screen brightness'.") + SPACING_Y;
+        posY = Draw_DrawString(10, posY, COLOR_WHITE, "  * avoid frequent use to minimise NAND(!) wear.") + SPACING_Y;
+        posY = Draw_DrawString(10, posY, COLOR_WHITE, "  * 172 is only presumed(!) safe for prolonged use.") + (SPACING_Y*2);
 
         sprintf(fmtbuf, "%c Level 1 value: %i", (sel == 0 ? '>' : ' '), s_blPwmData.luminanceLevels[0]);
-        posY = Draw_DrawString(10, posY, COLOR_RED, fmtbuf) + SPACING_Y;
+        posY = Draw_DrawString(10, posY, COLOR_WHITE, fmtbuf) + SPACING_Y;
 
         sprintf(fmtbuf, "%c Level 2 value: %i", (sel == 1 ? '>' : ' '), s_blPwmData.luminanceLevels[1]);
-        posY = Draw_DrawString(10, posY, COLOR_RED, fmtbuf) + SPACING_Y;
+        posY = Draw_DrawString(10, posY, COLOR_WHITE, fmtbuf) + SPACING_Y;
 
         sprintf(fmtbuf, "%c Level 3 value: %i", (sel == 2 ? '>' : ' '), s_blPwmData.luminanceLevels[2]);
-        posY = Draw_DrawString(10, posY, COLOR_RED, fmtbuf) + SPACING_Y;
+        posY = Draw_DrawString(10, posY, COLOR_WHITE, fmtbuf) + SPACING_Y;
 
         sprintf(fmtbuf, "%c Level 4 value: %i", (sel == 3 ? '>' : ' '), s_blPwmData.luminanceLevels[3]);
-        posY = Draw_DrawString(10, posY, COLOR_RED, fmtbuf) + SPACING_Y;
+        posY = Draw_DrawString(10, posY, COLOR_WHITE, fmtbuf) + SPACING_Y;
 
         sprintf(fmtbuf, "%c Level 5 value: %i", (sel == 4 ? '>' : ' '), s_blPwmData.luminanceLevels[4]);
-        posY = Draw_DrawString(10, posY, COLOR_RED, fmtbuf) + (SPACING_Y*2);
+        posY = Draw_DrawString(10, posY, COLOR_WHITE, fmtbuf) + (SPACING_Y*2);
 
         posY = Draw_DrawString(10, posY, COLOR_GREEN, "Controls:") + SPACING_Y;
         posY = Draw_DrawString(10, posY, COLOR_WHITE, " UP/DOWN to choose level to edit.") + SPACING_Y;

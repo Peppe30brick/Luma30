@@ -49,35 +49,33 @@
 #include "luminance.h"
 #include "pmdbgext.h"
 #include "menus/quick_switchers.h"
-#include "menus/streaming.h"
 #include "menus/chainloader.h"
 #include "config_template_ini.h"
 #include "configExtra_ini.h"
 
 Menu rosalinaMenu = {
-    "Peppe30_rosalinamenu",
+    "Rosalina menu",
     {
         { "Screenshot NFTs", METHOD, .method = &RosalinaMenu_TakeScreenshot },
-        { "Cambia luminosita schermo", METHOD, .method = &RosalinaMenu_ChangeScreenBrightness },
-        { "Trucchi", METHOD, .method = &RosalinaMenu_Cheats },
+        { "Change screen brightness", METHOD, .method = &RosalinaMenu_ChangeScreenBrightness },
+        { "Cheater", METHOD, .method = &RosalinaMenu_Cheats },
         { "", METHOD, .method = PluginLoader__MenuCallback },
-        { "Lista Processi Attivi", METHOD, .method = &RosalinaMenu_ProcessList },
-        { "Opzioni di debug...", MENU, .menu = &debuggerMenu },
-        { "Configurazione di sistema...", MENU, .menu = &sysconfigMenu },
-        { "Filtri schermo", MENU, .menu = &screenFiltersMenu },
-        { "Impostazioni SOLO New3DS", MENU, .menu = &N3DSMenu, .visibility = &menuCheckN3ds },
-        { "Trasmetti", MENU, .menu = &streamingMenu },
-        { "Scambio rapido...", MENU, .menu = &quickSwitchersMenu },
-        { "Opzioni aggiuntive...", MENU, .menu = &miscellaneousMenu },
-        { "Salva le impostazioni", METHOD, .method = &RosalinaMenu_SaveSettings },
-        { "Vai alla Home", METHOD, .method = &RosalinaMenu_HomeMenu },
-        { "Opzioni Di Spegnimento...", METHOD, .method = &RosalinaMenu_PowerOptions },
-        { "Crediti", METHOD, .method = &RosalinaMenu_ShowCredits },
-        { "Informazioni di debug", METHOD, .method = &RosalinaMenu_ShowDebugInfo, .visibility = &rosalinaMenuShouldShowDebugInfo },
+        { "Process hacker", METHOD, .method = &RosalinaMenu_ProcessList },
+        { "Debugger options...", MENU, .menu = &debuggerMenu },
+        { "System configuration...", MENU, .menu = &sysconfigMenu },
+        { "Screen filters...", MENU, .menu = &screenFiltersMenu },
+        { "New 3DS settings...", MENU, .menu = &N3DSMenu, .visibility = &menuCheckN3ds },
+        { "Quick-Switchers...", MENU, .menu = &quickSwitchersMenu },
+        { "Miscellaneous options...", MENU, .menu = &miscellaneousMenu },
+        { "Save settings", METHOD, .method = &RosalinaMenu_SaveSettings },
+        { "Go to Home", METHOD, .method = &RosalinaMenu_HomeMenu },
+        { "Power & performance options", METHOD, .method = &RosalinaMenu_PowerPerformanceOptions },
+        { "Credits", METHOD, .method = &RosalinaMenu_ShowCredits },
+        { "Debug info", METHOD, .method = &RosalinaMenu_ShowDebugInfo, .visibility = &rosalinaMenuShouldShowDebugInfo },
         {},
     }
 };
-
+    
 bool rosalinaMenuShouldShowDebugInfo(void)
 {
     // Don't show on release builds
@@ -98,11 +96,11 @@ void RosalinaMenu_SaveSettings(void)
     do
     {
         Draw_Lock();
-        Draw_DrawString(10, 10, COLOR_TITLE, "Salva le impostazioni");
+        Draw_DrawString(10, 10, COLOR_TITLE, "Save settings");
         if (R_SUCCEEDED(res))
-            Draw_DrawString(10, 30, COLOR_GREEN, "Operazione compiuta.");
+            Draw_DrawString(10, 30, COLOR_WHITE, "Operation succeeded.");
         else
-            Draw_DrawFormattedString(10, 30, COLOR_RED, "Operazione fallita (0x%08lx).", res);
+            Draw_DrawFormattedString(10, 30, COLOR_WHITE, "Operation failed (0x%08lx).", res);
         Draw_FlushFramebuffer();
         Draw_Unlock();
     }
@@ -130,18 +128,18 @@ void RosalinaMenu_ShowDebugInfo(void)
     do
     {
         Draw_Lock();
-        Draw_DrawString(10, 10, COLOR_TITLE, "Rosalina -- informazioni di Debug");
+        Draw_DrawString(10, 10, COLOR_TITLE, "Rosalina -- Debug info");
 
         u32 posY = Draw_DrawString(10, 30, COLOR_WHITE, memoryMap);
-        posY = Draw_DrawFormattedString(10, posY, COLOR_WHITE, "Kernel esterno PA: %08lx - %08lx\n\n", kextPa, kextPa + kextSize);
+        posY = Draw_DrawFormattedString(10, posY, COLOR_WHITE, "Kernel ext PA: %08lx - %08lx\n\n", kextPa, kextPa + kextSize);
         posY = Draw_DrawFormattedString(
-            10, posY, COLOR_BLUE, "Versione Kernel: %lu.%lu-%lu\n",
+            10, posY, COLOR_WHITE, "Kernel version: %lu.%lu-%lu\n",
             GET_VERSION_MAJOR(kernelVer), GET_VERSION_MINOR(kernelVer), GET_VERSION_REVISION(kernelVer)
         );
         if (mcuFwVersion != 0)
         {
             posY = Draw_DrawFormattedString(
-                10, posY, COLOR_RED, "Versione MCU FW: %lu.%lu\n",
+                10, posY, COLOR_WHITE, "MCU FW version: %lu.%lu\n",
                 GET_VERSION_MAJOR(mcuFwVersion), GET_VERSION_MINOR(mcuFwVersion)
             );
         }
@@ -150,7 +148,7 @@ void RosalinaMenu_ShowDebugInfo(void)
         {
             u32 clkDiv = 1 << (1 + (speedInfo.sdClkCtrl & 0xFF));
             posY = Draw_DrawFormattedString(
-                10, posY, COLOR_WHITE, "Velocità SDMC: HS=%d %lukHz\n",
+                10, posY, COLOR_WHITE, "SDMC speed: HS=%d %lukHz\n",
                 (int)speedInfo.highSpeedModeEnabled, SYSCLOCK_SDMMC / (1000 * clkDiv)
             );
         }
@@ -158,7 +156,7 @@ void RosalinaMenu_ShowDebugInfo(void)
         {
             u32 clkDiv = 1 << (1 + (speedInfo.sdClkCtrl & 0xFF));
             posY = Draw_DrawFormattedString(
-                10, posY, COLOR_WHITE, "Velocità NAND: HS=%d %lukHz\n",
+                10, posY, COLOR_WHITE, "NAND speed: HS=%d %lukHz\n",
                 (int)speedInfo.highSpeedModeEnabled, SYSCLOCK_SDMMC / (1000 * clkDiv)
             );
         }
@@ -184,24 +182,30 @@ void RosalinaMenu_ShowCredits(void)
     do
     {
         Draw_Lock();
-        Draw_DrawString(10, 10, COLOR_TITLE, "Rosalina -- Crediti Peppe30_luma3ds fork of customluma3ds by alexyo and coolgamer");
+        Draw_DrawString(10, 10, COLOR_TITLE, "Rosalina -- Luma3DS credits");
 
-        u32 posY = Draw_DrawString(10, 30, COLOR_GREEN, "Peppe30_luma (c) 2021-2023 Alexyo21, coolgamer Peppe30_brick, Originale: Luma3DS (c) 2016-2023 AuroraWright, TuxSH") + SPACING_Y;
+        u32 posY = Draw_DrawString(10, 30, COLOR_WHITE, "Luma3DS (c) 2016-2023 AuroraWright, TuxSH") + SPACING_Y;
 
-        posY = Draw_DrawString(10, posY + SPACING_Y, COLOR_BLUE, "3DSX codice di caricamento di fincs");
-        posY = Draw_DrawString(10, posY + SPACING_Y, COLOR_BLUE, "Networking code & basic GDB functionality by Stary");
-        posY = Draw_DrawString(10, posY + SPACING_Y, COLOR_BLUE, "InputRedirection by Stary (PoC by ShinyQuagsire)");
+        posY = Draw_DrawString(10, posY + SPACING_Y, COLOR_WHITE, "3DSX loading code by fincs");
+        posY = Draw_DrawString(10, posY + SPACING_Y, COLOR_WHITE, "Networking code & basic GDB functionality by Stary");
+        posY = Draw_DrawString(10, posY + SPACING_Y, COLOR_WHITE, "InputRedirection by Stary (PoC by ShinyQuagsire)");
 
         posY += 2 * SPACING_Y;
 
-        Draw_DrawString(10, posY, COLOR_BLUE,
+        Draw_DrawString(10, posY, COLOR_WHITE,
             (
-                " Ciao sono peppe30 ringrazio molto"
-                "simo per avermi aiutato a creare la custom"
-                "questa e una mod di customluma3ds CHE NON E MIO"
-                "un saluto anche al team di luma 3ds"
-
-                "un ringraziamento a voi utenti che avete scelto di usare luma30 BETA2"
+                " Special thanks to:\n"
+                "  fincs, WinterMute, mtheall, piepie62,\n"
+                "  Luma3DS contributors, libctru contributors,\n"
+                "  and other people.\n\n"
+                "  Credits for this fork:\n"
+                "  DullPointer, Cooolgamer, PabloMK7, D0k3,\n"
+                "  ByebyeSky, Sono, Nutez, Core2Extreme, Popax21,\n"
+                "  Peach, Nikki, truedread, Aspargas2, Peppe,\n"
+                "  Simo, Manuele, Defit and everyone in the\n"
+                "  Homebrew Galaxy group and all the people\n"
+                "  in godmode9 group for their guidance\n"
+                "  and a lot of others people more"
             ));
 
         Draw_FlushFramebuffer();
@@ -415,7 +419,7 @@ void RosalinaMenu_ChangeScreenBrightness(void)
     Draw_Unlock();
 }
 
-void RosalinaMenu_PowerOptions(void) 
+void RosalinaMenu_PowerPerformanceOptions(void) 
 {
     Draw_Lock();
     Draw_ClearFramebuffer();
@@ -425,10 +429,17 @@ void RosalinaMenu_PowerOptions(void)
     do
     {
         Draw_Lock();
-        Draw_DrawString(10, 10, COLOR_TITLE, "Power options");
-        Draw_DrawString(10, 30, COLOR_WHITE, "Press X to power off, press A to reboot,");
-        Draw_DrawString(10, 50, COLOR_RED, "Press Y to force reboot");
-        Draw_DrawString(10, 40, COLOR_WHITE, "Press B to go back.");
+        Draw_DrawString(10, 10, COLOR_TITLE, "Power & performance options");
+        Draw_DrawString(10, 30, COLOR_WHITE, "Press X to power off, press A to reboot.");
+        Draw_DrawString(10, 40, COLOR_RED, "Press Y to force reboot");
+        Draw_DrawString(10, 50, COLOR_WHITE, "Press Up: boot Homebrew with max app memory*.");
+        Draw_DrawString(10, 60, COLOR_RED, "*pressing home or power button will cause crash!");
+        if (isN3DS) {
+            Draw_DrawString(10, 70, COLOR_WHITE, "Press Left: reboot with core2 redirect.");
+            Draw_DrawString(10, 80, COLOR_WHITE, "Press Right: boot Homebrew with max mem* & core2.");
+        }
+        Draw_DrawString(10, 90, COLOR_WHITE, "Press Down: clear performance settings and reboot.");
+        Draw_DrawString(10, 110, COLOR_WHITE, "Press B to go back.");
         Draw_FlushFramebuffer();
         Draw_Unlock();
 
@@ -452,8 +463,41 @@ void RosalinaMenu_PowerOptions(void)
             __builtin_unreachable();
             return;
         }
-        else if (pressed & KEY_B)
-            return;
+        else if(pressed & KEY_B)
+        {
+           return;
+        }
+        else if (pressed & DIRECTIONAL_KEYS)
+        {
+            if (pressed & KEY_UP)
+            {
+                menuLeave();
+                LumaConfig_SavePerformanceSettings(true, true, false);
+                svcKernelSetState(7);
+                return;
+            }
+            else if ((pressed & KEY_LEFT) && isN3DS)
+            {    
+                menuLeave();            
+                LumaConfig_SavePerformanceSettings(false, false, true);
+                svcKernelSetState(7);
+                return;
+            }
+            else if ((pressed & KEY_RIGHT) && isN3DS)
+            {
+                menuLeave();
+                LumaConfig_SavePerformanceSettings(true, true, true);
+                svcKernelSetState(7);
+                return;
+            }
+            else if (pressed & KEY_DOWN)
+            {
+                menuLeave();
+                LumaConfig_SavePerformanceSettings(false, false, false);
+                svcKernelSetState(7);
+                return;
+            }
+        }
     }
     while (!menuShouldExit);
 }

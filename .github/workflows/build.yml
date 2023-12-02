@@ -1,4 +1,4 @@
-name: Peppe30_brick
+name: CI
 
 on:
   push:
@@ -29,5 +29,5 @@ jobs:
       run: make -j$(nproc --all)
     - uses: actions/upload-artifact@v3
       with:
-        name: Luma30_BETA2
+        name: CustomLuma3DS-nightly
         path: boot.firm

@@ -128,6 +128,10 @@ Result ServiceManager_Run(const ServiceManagerServiceEntry *services, const Serv
                         break;
                     }
                 }
+                if (configExtra.turnLedsOffStandby)
+                {
+                    ledOffStandby();
+                }
             } else if ((u32)id < 1 + numServices) {
                 // New session
                 Handle session;
@@ -150,10 +154,6 @@ Result ServiceManager_Run(const ServiceManagerServiceEntry *services, const Serv
                 u32 off = id - 1 - numServices;
                 services[handlerIds[off]].handler(ctxs[off]);
                 replyTarget = waitHandles[id];
-            }
-           if (configExtra.suppressLeds && configExtra.turnLedsOffStandby)
-            {
-               ledOffStandby();
             }
         }
     }

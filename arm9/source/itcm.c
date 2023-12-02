@@ -15,7 +15,7 @@ void patchITCM(void)
     // Error checking
     if (otpSize != sizeof(Otp))
       {
-         error("L'OTP non è della dimensione corretta.");
+         error("OTP is not the correct size.");
       }
     
       else
@@ -24,7 +24,7 @@ void patchITCM(void)
     
       if (otp.magic != OTP_MAGIC)
          {
-            error("Impossibile scansionare OTP. E' scriptato correttamente?");
+            error("Unable to parse OTP. Is it decrypted properly?");
          }
          
          else

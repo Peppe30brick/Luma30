@@ -39,6 +39,7 @@
 #include "pin.h"
 #include "i2c.h"
 #include "ini.h"
+#include "bax.c"
 
 #include "config_template_ini.h" // note that it has an extra NUL byte inserted
 
@@ -70,7 +71,8 @@ static const char *singleOptionIniNamesBoot[] = {
     "use_dev_unitinfo",
     "disable_arm11_exception_handlers",
     "enable_safe_firm_rosalina",
-    "disable_errdisp_enable_instant_reboot",
+    "disable_errdisp_enable_instant_reboot
+    "enable_BAX.firm",
 };
 
 static const char *singleOptionIniNamesMisc[] = {
@@ -569,7 +571,15 @@ static int configIniHandler(void* user, const char* section, const char* name, c
                 return 1;
             }
         }
-        CHECK_PARSE_OPTION(-1);
+        
+        if (strcmp(name, "volume_slider_override") == 0) {
+            s64 opt;
+            CHECK_PARSE_OPTION(parseDecIntOption(&opt, value, -1, 100));
+            cfg->volumeSliderOverride = (s8)opt;
+            return 1;
+        } else {
+              CHECK_PARSE_OPTION(-1);
+        }
     } else {
         CHECK_PARSE_OPTION(-1);
     }
@@ -614,9 +624,9 @@ static size_t saveLumaIniConfigToStr(char *out)
     }
 
     if (VERSION_BUILD != 0) {
-        sprintf(lumaVerStr, "Peppe30_lumaBETA v%d.%d.%d", (int)VERSION_MAJOR, (int)VERSION_MINOR, (int)VERSION_BUILD);
+        sprintf(lumaVerStr, "Luma30 v%d.%d.%d", (int)VERSION_MAJOR, (int)VERSION_MINOR, (int)VERSION_BUILD);
     } else {
-        sprintf(lumaVerStr, "Peppe30_lumaBETA v%d.%d", (int)VERSION_MAJOR, (int)VERSION_MINOR);
+        sprintf(lumaVerStr, "Luma30 v%d.%d", (int)VERSION_MAJOR, (int)VERSION_MINOR);
     }
 
     if (ISRELEASE) {
@@ -672,6 +682,8 @@ static size_t saveLumaIniConfigToStr(char *out)
         (int)cfg->topScreenFilter.invert, (int)cfg->bottomScreenFilter.invert,
 
         cfg->autobootTwlTitleId, (int)cfg->autobootCtrAppmemtype,
+        
+        cfg->volumeSliderOverride,
         
         (int)CONFIG(SHOWADVANCEDSETTINGS),
         (int)CONFIG(HARDWAREPATCHING)
@@ -776,6 +788,7 @@ bool readConfig(void)
         configData.formatVersionMinor = CONFIG_VERSIONMINOR;
         configData.config |= 1u << PATCHVERSTRING;
         configData.splashDurationMsec = 2000;
+        configData.volumeSliderOverride = -1;
         configData.hbldr3dsxTitleId = HBLDR_DEFAULT_3DSX_TID;
 #ifdef BUILD_FOR_GDB      
         configData.rosalinaMenuCombo = 1u << 9 | 1u << 6; // L+Up
@@ -818,208 +831,210 @@ void writeConfig(bool isConfigOptions)
         writeConfigMcu();
 
     if(updateIni && !writeLumaIniConfig())
-        error("Errore durante la scrittura del file di configurazione");
+        error("Error writing the configuration file");
 }
 
 void configMenu(bool oldPinStatus, u32 oldPinMode)
 {
-    static const char *multiOptionsText[]  = { "EmuNAND predefinita: 1( ) 2( ) 3( ) 4( )",
-                                               "Luminosita schermo: 4( ) 3( ) 2( ) 1( )",
-                                               "Splash: Spento( ) Prima( ) Dopo( ) payloads",
-                                               "Blocco PIN: Spento( ) 4( ) 6( ) 8( ) cifre",
-                                               "New 3DS CPU: Spento( ) Clock( ) L2( ) Clock+L2( )",
-                                               "Avvio automatico hbmenu: Spento( ) 3DS( ) DSi( )",
-                                               "Forza l'audio: Spento( ) Cuffie( ) Casse( )"
+    static const char *multiOptionsText[]  = { "Emunand default: 1( ) 2( ) 3( ) 4( )",
+                                               "Screen brightness: 4( ) 3( ) 2( ) 1( )",
+                                               "Splash: Off( ) Before( ) After( ) payloads",
+                                               "PIN di blocco: Off( ) 4( ) 6( ) 8( ) digits",
+                                               "New 3DS CPU: Off( ) Clock( ) L2( ) Clock+L2( )",
+                                               "Hbmenu autoboot: Off( ) 3DS( ) DSi( )",
+                                               "audio forzato: Off( ) Headphones( ) Speakers( )"
                                              };
 
-    static const char *singleOptionsText[] = { "( ) Avvia una Emunand da sd",
-                                               "( ) Abilita il caricamento di FIRM e moduli esterni",
-                                               "( ) Abilita patch dei giochi",
-                                               "( ) Reindir. threads app. syscore al core2",
-                                               "( ) Mostra Stringa Nand in Impostazioni Di Sistema",
-                                               "( ) Mostra schermo avvio GBA negli AGB_FIRM patchati",
-                                               "( ) Abilita filtri pers. di upscaling per DSi",
-                                               "( ) Ammetti combo Sin+D/Su+Giu per DSi",
-                                               "( ) Togli il wifi 3DS in modalita riposo",
-                                               "( ) Imposta UNITINFO per avere fingerti una console sviluppatore.",
-                                               "( ) Disabilita gli Arm11 exception handlers",                                               
-                                               "( ) Abilita Rosalina nel SAFE_FIRM",
-                                               "( ) Abilita il riavvio ist. + disabilita Errdisp",
-                                               "( ) Mostra le impostazioni avanzate",
-                                               "( ) Abilita il patching di Nand Cid e Otp hardware",
+    static const char *singleOptionsText[] = { "( ) Avvio Emunand",
+                                               "( ) Abilita firm e patch esterne",
+                                               "( ) Abilita Patch per i giochi",
+                                               "( ) utilizza 2core nelle app",
+                                               "( ) Visualizza La tipo Di Nand in settings",
+                                               "( ) Mostra la schermata di avvio GBA",
+                                               "( ) Abilita un custom upscaling per la dsimode",
+                                               "( ) abilita combo per dsimode",
+                                               "( ) disattiva il wifi in modalita riposo",
+                                               "( ) Abilita Modalita DEVELOPER",
+                                               "( ) Disabilita EXEPCION ARM11",                                               
+                                               "( ) Abilita Rosalina Nel SAFE_FIRM",
+                                               "( ) Abilita reboot instantaneo e rimozzione errdisp",
+                                               "( ) Opzione avanzate",
+                                               "( ) Enable Nand Cid and Otp hardware patching",
+                                               "( ) Enable Bax To firm",
                                                                                               
                                                // Should always be the last entry
-                                               "\nritorna al menu home"
+                                               "\nsalva e torna alla home"
                                              };
 
-    static const char *optionsDescription[]  = { "Seleziona l'EmuNAND predefinita.\n\n"
-                                                 "Verra' avviata quando nesssun tasto \n"
-                                                 "del DPAD e' premuto (Su/Destra/Giu'\n"
-                                                 "/Sinistra corrispondono alle EmuNAND 1/2/3/4).",
+    static const char *optionsDescription[]  = { "Seleziona la emunand default.\n\n"
+                                                 "Non premere nessun tasto se ne hai una sola\n"
+                                                 "se ne hai più di una premi un lato dela croce direzzionale\n"
+                                                 "/Left equal EmuNANDs 1/2/3/4).",
 
-                                                 "Seleziona la luminosita' dello schermo.",
+                                                 "Select the screen brightness.",
 
-                                                 "Abilita il supporto delle schermate splash.\n\n"
-                                                 "\t* 'Prima payloads' lo mostra\n"
-                                                 "prima di avviare le payloads\n"
-                                                 "(inteso per splash che mostrano\n"
-                                                 "indicazioni di tasti).\n\n"
-                                                 "\t* 'Dopo payloads' lo mostra\n"
-                                                 "dopo.\n\n"
-                                                 "Modifica la durata nel file luma.ini (3s\n"
-                                                 "predefinita).",
+                                                 "Enable splash screen support.\n\n"
+                                                 "\t* 'Before payloads' displays it\n"
+                                                 "before booting payloads\n"
+                                                 "(intended for splashes that display\n"
+                                                 "button hints).\n\n"
+                                                 "\t* 'After payloads' displays it\n"
+                                                 "afterwards.\n\n"
+                                                 "Edit the duration in lumae.ini (3s\n"
+                                                 "default).",
 
-                                                 "Abilita un blocco PIN.\n\n"
-                                                 "Il PIN verra' chiesto ogni volta che\n"
-                                                 "Peppe30_luma3ds si avvia.\n\n"
-                                                 "Puo' essere impostato a 4, 6 o 8 cifre.\n\n"
-                                                 "I tasti ABXY e i tasti del DPAD\n"
-                                                 "possono essere usati come chiavi del blocco.\n\n"
-                                                 "Puo' essere mostrato anche un messaggio\n"
-                                                 "(Consulta la wiki per istruzioni).",
+                                                 "Activate a PIN lock.\n\n"
+                                                 "The PIN will be asked each time\n"
+                                                 "Luma3DS boots.\n\n"
+                                                 "4, 6 or 8 digits can be selected.\n\n"
+                                                 "The ABXY buttons and the directional\n"
+                                                 "pad buttons can be used as keys.\n\n"
+                                                 "A message can also be displayed\n"
+                                                 "(refer to the wiki for instructions).",
 
-                                                 "Seleziona la modalita' del New 3DS CPU.\n\n"
-                                                 "Questo non verra' applicato per i\n"
-                                                 "giochi esclusivi/potenziati per New3DS.\n\n"
-                                                 "'Clock+L2' puo' creare problemi con alcuni\n"
-                                                 "giochi.",
+                                                 "Select the New 3DS CPU mode.\n\n"
+                                                 "This won't apply to\n"
+                                                 "New 3DS exclusive/enhanced games.\n\n"
+                                                 "'Clock+L2' can cause issues with some\n"
+                                                 "games.",
 
-                                                 "Abilita l'avvio automatico nell'homebrew menu,\n"
-                                                 "sia in modalita' 3DS che DSi.\n\n"
-                                                 "L'avvio automatico in una scheda di gioco\n"
-                                                 "non è supportato.\n\n"
-                                                 "Riferisciti alla sezione \"autoboot\"\n"
-                                                 "nel file di configurazione per impostare\n"
-                                                 "questa funzione.",
+                                                 "Enable autobooting into homebrew menu,\n"
+                                                 "either into 3DS or DSi mode.\n\n"
+                                                 "Autobooting into a gamecard title is\n"
+                                                 "not supported.\n\n"
+                                                 "Refer to the \"autoboot\" section in the\n"
+                                                 "configuration file to configure\n"
+                                                 "this feature.",
                                                  
-                                                 "Forza l'output audio alle cuffie o alle casse.\n\n"
-                                                 "Attualmente solo per NATIVE_FIRM.\n\n"
-                                                 "Per via di limitazioni software, questo smettte di\n"
-                                                 "funzionare se inserisci e poi\n"
-                                                 "rimuovi le cuffie (se questo succede, entra ed esci dalla\n"
-                                                 "modalita' riposo).\n\n"
-                                                 "Viene anche bypassato dai suoni\n"
-                                                 "di scatto della fotocamera.",
+                                                 "Force audio output to HPs or speakers.\n\n"
+                                                 "Currently only for NATIVE_FIRM.\n\n"
+                                                 "Due to software limitations, this gets\n"
+                                                 "undone if you actually insert then\n"
+                                                 "remove HPs (just enter then exit sleep\n"
+                                                 "mode if this happens).\n\n"
+                                                 "Also gets bypassed for camera shutter\n"
+                                                 "sound.",
 
 
 
-                                                 "Se abilitato, un EmuNAND\n"
-                                                 "verra' lanciata all'avvio.\n\n"
-                                                 "Altrimenti, la SysNAND lo fara'\n\n"
-                                                 "Mantieni L all'avvio per cambiare NAND.\n\n"
-                                                 "Per usare un EmuNAND differente dalla\n"
-                                                 "predefinita, mantieni un tasto del DPAD\n"
-                                                 "(Su/Destra/Giu'/Sinistra corrispondono alle EmuNANDs\n"
-                                                 "1/2/3/4)."
-                                                 "BENVENUTO IN LUMA30_BRICK BY PEPPE"
-                                                 "FORK OF CUSTOMLUMA3DS",
-                                            
+                                                 "If enabled, an EmuNAND\n"
+                                                 "will be launched on boot.\n\n"
+                                                 "Otherwise, SysNAND will.\n\n"
+                                                 "Hold L on boot to switch NAND.\n\n"
+                                                 "To use a different EmuNAND from the\n"
+                                                 "default, hold a directional pad button\n"
+                                                 "(Up/Right/Down/Left equal EmuNANDs\n"
+                                                 "1/2/3/4).",
 
-                                                 "Abilita il caricamento di FIRM e moduli di\n"
-                                                 "sistema esterni.\n\n"
-                                                 "Questo non e' necessario nella maggior parte dei casi.\n\n"
-                                                 "Consulta la wiki per maggiori istruzioni."
-                                                "BENVENUTO IN LUMA30_BRICK BY PEPPE"
-                                                "FORK OF CUSTOMLUMA3DS",
+                                                 "Enable loading external FIRMs and\n"
+                                                 "system modules.\n\n"
+                                                 "This isn't needed in most cases.\n\n"
+                                                 "Refer to the wiki for instructions.",
 
-                                                 "Abilita l'oltrepassaggio della regione e\n"
-                                                 "della configurazione di lingua\n"
-                                                 "di codici binari patchati, exHeaders,\n"
-                                                 "IPS codici patchati e LayeredFS\n"
-                                                 "Per giochi specifici.\n\n"
-                                                 "Fa anche si' che certi DLC per giochi fuori\n"
-                                                 "dalla regione funzionino.\n\n"
-                                                 "Consulta la Wiki per istruzioni.",
+                                                 "Enable overriding the region and\n"
+                                                 "language configuration and the usage\n"
+                                                 "of patched code binaries, exHeaders,\n"
+                                                 "IPS code patches and LayeredFS\n"
+                                                 "for specific games.\n\n"
+                                                 "Also makes certain DLCs for out-of-\n"
+                                                 "region games work.\n\n"
+                                                 "Refer to the wiki for instructions.",
 
-                                                 "Reindirizza i threads app. threads che si generano\n"
-                                                 "sul core1, al core2 (che e' un core della\n"
-                                                 "CPU aggiuntivo per applicazioni che solitamente\n"
-                                                 "restano inutilizzate).\n\n"
-                                                 "Questo migliora le prestazioni di giochi\n"
-                                                 "veramente pesanti (come Pok\x82mon US/UM)\n" // CP437
-                                                 "di circa il 10%. Puo' rompere alcuni giochi\n"
-                                                 "e altre applicazioni.\n",
+                                                 "Redirect app. threads that would spawn\n"
+                                                 "on core1, to core2 (which is an extra\n"
+                                                 "CPU core for applications that usually\n"
+                                                 "remains unused).\n\n"
+                                                 "This improves the performance of very\n"
+                                                 "demanding games (like Pok\x82mon US/UM)\n" // CP437
+                                                 "by about 10%. Can break some games\n"
+                                                 "and other applications.\n",
 
-                                                 "Abilita la visualizzazione della NAND attuale:\n\n"
+                                                 "Enable showing the current NAND:\n\n"
                                                  "\t* Sys  = SysNAND\n"
                                                  "\t* Emu  = EmuNAND 1\n"
                                                  "\t* EmuX = EmuNAND X\n\n"
-                                                 "o una stringa personalizzata e definita\n"
-                                                 "dall'utente nelle Impostazioni di sistema.\n\n"
-                                                 "Consulta la wiki per maggiori istruzioni.",
+                                                 "or a user-defined custom string in\n"
+                                                 "System Settings.\n\n"
+                                                 "Refer to the wiki for instructions.",
 
-                                                 "Abilita la visualizzazione dello schermo di avvio del GBA\n"
-                                                 "quando si avviano giochi GBA.",
+                                                 "Enable showing the GBA boot screen\n"
+                                                 "when booting GBA games.",
 
-                                                 "Abilita il rimpiazzo dei filtri di\n"
-                                                 "upscaling usati per i software DS(i) con i\n"
-                                                 "contenuti di:\n\n"
+                                                 "Enable replacing the default upscaling\n"
+                                                 "filter used for DS(i) software by the\n"
+                                                 "contents of:\n\n"
                                                  "/luma/twl_upscaling_filter.bin\n\n"
-                                                 "Consulta la wiki per maggiori dettagli su questa funzione.",
+                                                 "Refer to the wiki for further details.",
 
-                                                 "Ammetti le combinazioni Sinistra+Destra/Su+Giù\n"
-                                                 "(usando il DPAD e il CPAD\n"
-                                                 "simultaneamente) nei software DS(i).\n\n"
-                                                 "I software commerciali filtrano\n"
-                                                 "da soli queste combinazioni pero.",
+                                                 "Allow Left+Right and Up+Down button\n"
+                                                 "combos (using DPAD and CPAD\n"
+                                                 "simultaneously) in DS(i) software.\n\n"
+                                                 "Commercial software filter these\n"
+                                                 "combos on their own too, though.",
                                                  
-                                                 "Disabilita il wifi in modalita riposo.\n\n"
-                                                 "Utile per risparmiare batteria ma impedira' ad\n"
-                                                 "alcune funzioni come streetpass o\n"
-                                                 "spotpass di funzionare in modalira riposo.\n\n"
-                                                 "Usa questo se non vuoi usarle e\n"
-                                                 "vuoi risparmiare batteria in modalita riposo.",
+                                                 "Cut the 3DS wifi in sleep mode.\n\n"
+                                                 "Useful to save battery but prevent\n"
+                                                 "some features like streetpass or\n"
+                                                 "spotpass to work on sleep mode.\n\n"
+                                                 "Use this if you don't use them\n"
+                                                 "want to save battery in sleep mode.",
                                                  
-                                                 "Fa si' che la console sia sempre riconosciuta\n"
-                                                 "come unita di sviluppo, e convertirla.\n"
-                                                 "(la quale rompe le funzioni online, amiibo\n"
-                                                 "e i retail CIA, ma consente l'installazione\n"
-                                                 "di alcuni software di sviluppo).\n\n"
-                                                 "Seleziona questo solamente se sai cosa\n"
-                                                 "stai facendo!",
+                                                 "Make the console be always detected\n"
+                                                 "as a development unit, and conversely.\n"
+                                                 "(which breaks online features, amiibo\n"
+                                                 "and retail CIAs, but allows installing\n"
+                                                 "and booting some developer software).\n\n"
+                                                 "Only select this if you know what you\n"
+                                                 "are doing!",
                                                  
-                                                 "Disabilita gli improvvisi errori fatali handlers \n"
-                                                 "per la CPU Arm11.\n\n"
-                                                 "Nota: Disabilitare gli improvvisi handlers\n"
-                                                 "ti rimuovera dal creare\n"
-                                                 "issue o bug report nella repository Luma3DS\n"
-                                                 "di GitHub!",
+                                                 "Disables the fatal error exception\n"
+                                                 "handlers for the Arm11 CPU.\n\n"
+                                                 "Note: Disabling the exception handlers\n"
+                                                 "will disqualify you from submitting\n"
+                                                 "issues or bug reports to the Luma3DS\n"
+                                                 "GitHub repository!",
                                                 
-                                                 "Abilita Rosalina, il kernel esterno.\n"
-                                                 "e la reimplementazione dei moduli di sistema\n"
-                                                 "SAFE_FIRM (Solo per New3DS).\n\n"
-                                                 "Permette anche di sorpassare l'errore QTM 0xF96183FE,\n"
-                                                 "permettendo così di usare la versione 8.1-11.3 N3DS su\n"
-                                                 "New 2DSXL console.\n\n"
-                                                 "Seleziona questo solamente se sai cosa\n"
-                                                 "stai facendo!",
+                                                 "Enables Rosalina, the kernel ext.\n"
+                                                 "and sysmodule reimplementations on\n"
+                                                 "SAFE_FIRM (New 3DS only).\n\n"
+                                                 "Also suppresses QTM error 0xF96183FE,\n"
+                                                 "allowing to use 8.1-11.3 N3DS on\n"
+                                                 "New 2DS XL consoles.\n\n"
+                                                 "Only select this if you know what you\n"
+                                                 "are doing!",
                                                  
-                                                 "Disabilita il riavvio dopo che sono capitati\n"
-                                                 "errori ErrDisp. Abilita anche istantaneamente una\n"
-                                                 "combo di riavvio, questo puo' corrompere la\n"
-                                                 "tua scheda SD quindi stai attento con questo.\n"
-                                                 "La combo e' A + B + X + Y + Start.\n\n"
-                                                 "Seleziona questo solamente se sai cosa\n"
-                                                 "stai facendo!",
+                                                 "Disable rebooting after an Errdisp\n"
+                                                 "error occurs. It also enable instant\n"
+                                                 "reboot combo, this can corrupt your\n"
+                                                 "SDcard so be careful with this.\n"
+                                                 "The combo is A + B + X + Y + Start.\n\n"
+                                                 "Only select this if you know what you\n"
+                                                 "are doing!\n\n"
+                                                 "Also added hardware error bypass and\n"
+                                                 "bypass broken nvram.",
                                                  
-                                                 "Disablitare questo fara' si che le impostazioni\n"
-                                                 "aggiuntive del menuu di configurazione di luma\n"
-                                                 "vengano nascoste.",
+                                                 "Disabling this will hide extra\n"
+                                                 "settings from the luma configuration\n"
+                                                 "menu.",
                                                  
-                                                 "Abilitare questo sara' la causa completa\n"
-                                                 "di otp e della nand cid, quindi puoi\n"
-                                                 "usare un backup nand di un'altra console\n"
-                                                 "su un altro hardware, quindi usa questo stando attento\n"
-                                                 "a cosa stai e bla bla sai gia'.\n\n"
-                                                 "Ricorda di mettere i file nand_cid.bin e otp.bin\n"
-                                                 "nel percorso luma nella sd luma directory perche' e' dove\n"
-                                                 "vengono letti e funziona solo con una scheda sd,\n"
-                                                 "perche' la nand e' sempre criptata.",
+                                                 "Enabling this will cause the complete\n"
+                                                 "of the otp and nand cid, so that you\n"
+                                                 "can use another console nand backup\n"
+                                                 "on another hardware, so use this carefuly\n"
+                                                 "are doing and bla bla you already know.\n\n"
+                                                 "Remember to put nand_cid.bin and otp.bin\n"
+                                                 "to sd luma directory cause well is where\n"
+                                                 "it reads them and works only on sd card,\n"
+                                                 "cause the nand is still encrypted.",
                                                  
                                                  // Should always be the last entry
-                                                 "Salva i cambiamenti ed esci. Per annullare\n"
-                                                 "un qualsiasi cambiamento premere il tasto POWER.\n"
-                                                 "Premi Start come shortcout per questa entrata."
+                                                 "Save the changes and exit. To discard\n"
+                                                 "any changes press the POWER button.\n"
+                                                 "Use START as a shortcut to this entry."
+
+
+                                                 // Abilita il Bax.firm."
+                                                 
                                                };
 
     FirmwareSource nandType = FIRMWARE_SYSNAND;
@@ -1062,10 +1077,11 @@ void configMenu(bool oldPinStatus, u32 oldPinMode)
         { .visible = true },
         { .visible = CONFIG(SHOWADVANCEDSETTINGS) },
         { .visible = CONFIG(SHOWADVANCEDSETTINGS) },
-        { .visible = CONFIG(SHOWADVANCEDSETTINGS) },
+        { .visible = ((CONFIG(SHOWADVANCEDSETTINGS)) && (ISN3DS))},
         { .visible = CONFIG(SHOWADVANCEDSETTINGS) },
         { .visible = false },
         { .visible = false },
+        { .visible = true },
         { .visible = true },
     };
 
@@ -1099,8 +1115,8 @@ void configMenu(bool oldPinStatus, u32 oldPinMode)
                                        "FIRM1" };
 
     drawString(true, 10, 10, COLOR_TITLE, CONFIG_TITLE);
-    drawString(true, 10, 10 + SPACING_Y, COLOR_TITLE, "Usa il DPAD e A per cambiare le impostazioni");
-    drawFormattedString(false, 10, SCREEN_HEIGHT - 2 * SPACING_Y, COLOR_YELLOW, "Avviato da %s via %s", isSdMode ? "SD" : "CTRNAND", bootTypes[(u32)bootType]);
+    drawString(true, 10, 10 + SPACING_Y, COLOR_TITLE, "Use the DPAD and A to change settings");
+    drawFormattedString(false, 10, SCREEN_HEIGHT - 2 * SPACING_Y, COLOR_YELLOW, "Booted from %s via %s", isSdMode ? "SD" : "CTRNAND", bootTypes[(u32)bootType]);
 
     //Character to display a selected option
     char selected = 'x';
@@ -1113,14 +1129,14 @@ void configMenu(bool oldPinStatus, u32 oldPinMode)
         if(!multiOptions[i].visible) continue;
 
         multiOptions[i].posY = endPos + SPACING_Y;
-        endPos = drawString(true, 10, multiOptions[i].posY, COLOR_RED, multiOptionsText[i]);
-        drawCharacter(true, 10 + multiOptions[i].posXs[multiOptions[i].enabled] * SPACING_X, multiOptions[i].posY, COLOR_RED, selected);
+        endPos = drawString(true, 10, multiOptions[i].posY, COLOR_WHITE, multiOptionsText[i]);
+        drawCharacter(true, 10 + multiOptions[i].posXs[multiOptions[i].enabled] * SPACING_X, multiOptions[i].posY, COLOR_WHITE, selected);
     }
 
     endPos += SPACING_Y / 2;
 
     //Display all the normal options in white except for the first one
-    for(u32 i = 0, color = COLOR_GREEN; i < singleOptionsAmount; i++)
+    for(u32 i = 0, color = COLOR_RED; i < singleOptionsAmount; i++)
     {
         if(!singleOptions[i].visible) continue;
 
@@ -1128,7 +1144,7 @@ void configMenu(bool oldPinStatus, u32 oldPinMode)
         endPos = drawString(true, 10, singleOptions[i].posY, color, singleOptionsText[i]);
         if(singleOptions[i].enabled && singleOptionsText[i][0] == '(') drawCharacter(true, 10 + SPACING_X, singleOptions[i].posY, color, selected);
 
-        if(color == COLOR_GREEN)
+        if(color == COLOR_RED)
         {
             singleSelected = i;
             selectedOption = i + multiOptionsAmount;
@@ -1208,14 +1224,14 @@ void configMenu(bool oldPinStatus, u32 oldPinMode)
             //The user moved to a different option, print the old option in white and the new one in red. Only print 'x's if necessary
             if(oldSelectedOption < multiOptionsAmount)
             {
-                drawString(true, 10, multiOptions[oldSelectedOption].posY, COLOR_RED, multiOptionsText[oldSelectedOption]);
-                drawCharacter(true, 10 + multiOptions[oldSelectedOption].posXs[multiOptions[oldSelectedOption].enabled] * SPACING_X, multiOptions[oldSelectedOption].posY, COLOR_RED, selected);
+                drawString(true, 10, multiOptions[oldSelectedOption].posY, COLOR_WHITE, multiOptionsText[oldSelectedOption]);
+                drawCharacter(true, 10 + multiOptions[oldSelectedOption].posXs[multiOptions[oldSelectedOption].enabled] * SPACING_X, multiOptions[oldSelectedOption].posY, COLOR_WHITE, selected);
             }
             else
             {
                 u32 singleOldSelected = oldSelectedOption - multiOptionsAmount;
-                drawString(true, 10, singleOptions[singleOldSelected].posY, COLOR_RED, singleOptionsText[singleOldSelected]);
-                if(singleOptions[singleOldSelected].enabled) drawCharacter(true, 10 + SPACING_X, singleOptions[singleOldSelected].posY, COLOR_RED, selected);
+                drawString(true, 10, singleOptions[singleOldSelected].posY, COLOR_WHITE, singleOptionsText[singleOldSelected]);
+                if(singleOptions[singleOldSelected].enabled) drawCharacter(true, 10 + SPACING_X, singleOptions[singleOldSelected].posY, COLOR_WHITE, selected);
             }
 
             if(isMultiOption) drawString(true, 10, multiOptions[selectedOption].posY, COLOR_GREEN, multiOptionsText[selectedOption]);
@@ -1275,7 +1291,7 @@ void configMenu(bool oldPinStatus, u32 oldPinMode)
     else if(oldPinStatus)
     {
         if(!fileDelete(PIN_FILE))
-            error("Impossibile eliminare il file del PIN");
+            error("Unable to delete PIN file");
     }
 
     while(HID_PAD & PIN_BUTTONS);
