@@ -39,7 +39,6 @@
 #include "pin.h"
 #include "i2c.h"
 #include "ini.h"
-#include "bax.c"
 
 #include "config_template_ini.h" // note that it has an extra NUL byte inserted
 
@@ -71,8 +70,7 @@ static const char *singleOptionIniNamesBoot[] = {
     "use_dev_unitinfo",
     "disable_arm11_exception_handlers",
     "enable_safe_firm_rosalina",
-    "disable_errdisp_enable_instant_reboot
-    "enable_BAX.firm",
+    "disable_errdisp_enable_instant_reboot",
 };
 
 static const char *singleOptionIniNamesMisc[] = {
@@ -624,9 +622,9 @@ static size_t saveLumaIniConfigToStr(char *out)
     }
 
     if (VERSION_BUILD != 0) {
-        sprintf(lumaVerStr, "Luma30 v%d.%d.%d", (int)VERSION_MAJOR, (int)VERSION_MINOR, (int)VERSION_BUILD);
+        sprintf(lumaVerStr, "CustomLuma3DS v%d.%d.%d", (int)VERSION_MAJOR, (int)VERSION_MINOR, (int)VERSION_BUILD);
     } else {
-        sprintf(lumaVerStr, "Luma30 v%d.%d", (int)VERSION_MAJOR, (int)VERSION_MINOR);
+        sprintf(lumaVerStr, "CustomLuma3DS v%d.%d", (int)VERSION_MAJOR, (int)VERSION_MINOR);
     }
 
     if (ISRELEASE) {
@@ -836,39 +834,38 @@ void writeConfig(bool isConfigOptions)
 
 void configMenu(bool oldPinStatus, u32 oldPinMode)
 {
-    static const char *multiOptionsText[]  = { "Emunand default: 1( ) 2( ) 3( ) 4( )",
+    static const char *multiOptionsText[]  = { "Default EmuNAND: 1( ) 2( ) 3( ) 4( )",
                                                "Screen brightness: 4( ) 3( ) 2( ) 1( )",
                                                "Splash: Off( ) Before( ) After( ) payloads",
-                                               "PIN di blocco: Off( ) 4( ) 6( ) 8( ) digits",
+                                               "PIN lock: Off( ) 4( ) 6( ) 8( ) digits",
                                                "New 3DS CPU: Off( ) Clock( ) L2( ) Clock+L2( )",
                                                "Hbmenu autoboot: Off( ) 3DS( ) DSi( )",
-                                               "audio forzato: Off( ) Headphones( ) Speakers( )"
+                                               "Force audio: Off( ) Headphones( ) Speakers( )"
                                              };
 
-    static const char *singleOptionsText[] = { "( ) Avvio Emunand",
-                                               "( ) Abilita firm e patch esterne",
-                                               "( ) Abilita Patch per i giochi",
-                                               "( ) utilizza 2core nelle app",
-                                               "( ) Visualizza La tipo Di Nand in settings",
-                                               "( ) Mostra la schermata di avvio GBA",
-                                               "( ) Abilita un custom upscaling per la dsimode",
-                                               "( ) abilita combo per dsimode",
-                                               "( ) disattiva il wifi in modalita riposo",
-                                               "( ) Abilita Modalita DEVELOPER",
-                                               "( ) Disabilita EXEPCION ARM11",                                               
-                                               "( ) Abilita Rosalina Nel SAFE_FIRM",
-                                               "( ) Abilita reboot instantaneo e rimozzione errdisp",
-                                               "( ) Opzione avanzate",
+    static const char *singleOptionsText[] = { "( ) Autoboot EmuNAND",
+                                               "( ) Enable loading external FIRMs and modules",
+                                               "( ) Enable game patching",
+                                               "( ) Redirect app. syscore threads to core2",
+                                               "( ) Show NAND or user string in System Settings",
+                                               "( ) Show GBA boot screen in patched AGB_FIRM",
+                                               "( ) Enable custom upscaling filters for DSi",
+                                               "( ) Allow Left+Right / Up+Down combos for DSi",
+                                               "( ) Cut 3DS Wifi in sleep mode",
+                                               "( ) Set developer UNITINFO",
+                                               "( ) Disable Arm11 exception handlers",                                               
+                                               "( ) Enable Rosalina on SAFE_FIRM",
+                                               "( ) Enable instant reboot + disable Errdisp",
+                                               "( ) Show Advanced Settings",
                                                "( ) Enable Nand Cid and Otp hardware patching",
-                                               "( ) Enable Bax To firm",
                                                                                               
                                                // Should always be the last entry
-                                               "\nsalva e torna alla home"
+                                               "\nSave and exit"
                                              };
 
-    static const char *optionsDescription[]  = { "Seleziona la emunand default.\n\n"
-                                                 "Non premere nessun tasto se ne hai una sola\n"
-                                                 "se ne hai più di una premi un lato dela croce direzzionale\n"
+    static const char *optionsDescription[]  = { "Select the default EmuNAND.\n\n"
+                                                 "It will be booted when no directional\n"
+                                                 "pad buttons are pressed (Up/Right/Down\n"
                                                  "/Left equal EmuNANDs 1/2/3/4).",
 
                                                  "Select the screen brightness.",
@@ -1031,10 +1028,6 @@ void configMenu(bool oldPinStatus, u32 oldPinMode)
                                                  "Save the changes and exit. To discard\n"
                                                  "any changes press the POWER button.\n"
                                                  "Use START as a shortcut to this entry."
-
-
-                                                 // Abilita il Bax.firm."
-                                                 
                                                };
 
     FirmwareSource nandType = FIRMWARE_SYSNAND;
@@ -1081,7 +1074,6 @@ void configMenu(bool oldPinStatus, u32 oldPinMode)
         { .visible = CONFIG(SHOWADVANCEDSETTINGS) },
         { .visible = false },
         { .visible = false },
-        { .visible = true },
         { .visible = true },
     };
 
@@ -1136,7 +1128,7 @@ void configMenu(bool oldPinStatus, u32 oldPinMode)
     endPos += SPACING_Y / 2;
 
     //Display all the normal options in white except for the first one
-    for(u32 i = 0, color = COLOR_RED; i < singleOptionsAmount; i++)
+    for(u32 i = 0, color = COLOR_GREEN; i < singleOptionsAmount; i++)
     {
         if(!singleOptions[i].visible) continue;
 
@@ -1144,15 +1136,15 @@ void configMenu(bool oldPinStatus, u32 oldPinMode)
         endPos = drawString(true, 10, singleOptions[i].posY, color, singleOptionsText[i]);
         if(singleOptions[i].enabled && singleOptionsText[i][0] == '(') drawCharacter(true, 10 + SPACING_X, singleOptions[i].posY, color, selected);
 
-        if(color == COLOR_RED)
+        if(color == COLOR_GREEN)
         {
             singleSelected = i;
             selectedOption = i + multiOptionsAmount;
-            color = COLOR_RED;
+            color = COLOR_WHITE;
         }
     }
 
-    drawString(false, 10, 10, COLOR_RED, optionsDescription[selectedOption]);
+    drawString(false, 10, 10, COLOR_WHITE, optionsDescription[selectedOption]);
     
     bool startPressed = false;
     //Boring configuration menu

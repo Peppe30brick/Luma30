@@ -1,1 +1,0 @@
-sdmc:/BAX.firm
