@@ -1030,9 +1030,6 @@ void configMenu(bool oldPinStatus, u32 oldPinMode)
                                                  "Save the changes and exit. To discard\n"
                                                  "any changes press the POWER button.\n"
                                                  "Use START as a shortcut to this entry."
-
-
-                                                 // Abilita il Bax.firm."
                                                  
                                                };
 
