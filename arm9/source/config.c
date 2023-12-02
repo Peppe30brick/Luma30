@@ -72,7 +72,6 @@ static const char *singleOptionIniNamesBoot[] = {
     "disable_arm11_exception_handlers",
     "enable_safe_firm_rosalina",
     "disable_errdisp_enable_instant_reboot
-    "enable_BAX.firm",
 };
 
 static const char *singleOptionIniNamesMisc[] = {
