@@ -142,11 +142,11 @@ static int ERRF_FormatRegisterDump(char *out, const ERRF_ExceptionData *exceptio
 static int ERRF_FormatGenericInfo(char *out, const ERRF_FatalErrInfo *info)
 {
     static const char *types[] = {
-        "generic", "corrupted", "card removed", "exception", "result failure", "generic (log only)", "invalid"
+        "generico", "corruzzione", "sd card rimossa", "exception", "errore", "generic (log only)", "codice invalido"
     };
 
     static const char *exceptionTypes[] = {
-        "prefetch abort", "data abort", "undefined instruction", "VFP", "invalid"
+        "prefetch abort", "crash dati", "istruzione indefinite", "VFP", "invalido"
     };
 
     const char *type = (u32)info->type > (u32)ERRF_ERRTYPE_LOG_ONLY ? types[6] : types[(u32)info->type];
@@ -160,12 +160,12 @@ static int ERRF_FormatGenericInfo(char *out, const ERRF_FatalErrInfo *info)
         const char *exceptionType = (u32) info->data.exception_data.excep.type > (u32)ERRF_EXCEPTION_VFP ?
                                     exceptionTypes[4] : exceptionTypes[(u32)info->data.exception_data.excep.type];
 
-        out += sprintf(out, "Error type:       exception (%s)\n", exceptionType);
+        out += sprintf(out, "tipo di errore:       exception (%s)\n", exceptionType);
     }
     else
-        out += sprintf(out, "Error type:       %s\n", type);
+        out += sprintf(out, "tipo di errore:       %s\n", type);
 
-    out += sprintf(out, "\nProcess ID:       %lu\n", info->procId);
+    out += sprintf(out, "\nID del processo:       %lu\n", info->procId);
 
     res = svcOpenProcess(&processHandle, info->procId);
     if(R_SUCCEEDED(res))
@@ -175,8 +175,8 @@ static int ERRF_FormatGenericInfo(char *out, const ERRF_FatalErrInfo *info)
         svcGetProcessInfo((s64 *)name, processHandle, 0x10000);
         svcGetProcessInfo((s64 *)&titleId, processHandle, 0x10001);
         svcCloseHandle(processHandle);
-        out += sprintf(out, "Process name:     %s\n", name);
-        out += sprintf(out, "Process title ID: %016llx\n", titleId);
+        out += sprintf(out, "nome del processo:     %s\n", name);
+        out += sprintf(out, "title id del processo: %016llx\n", titleId);
     }
 
     out += sprintf(out, "\n");
@@ -214,7 +214,7 @@ static int ERRF_FormatError(char *out, const ERRF_FatalErrInfo *info, bool isLog
         case ERRF_ERRTYPE_LOG_ONLY:
             out += ERRF_FormatGenericInfo(out, info);
             out += sprintf(out, "Address:          0x%08lx\n", info->pcAddr);
-            out += sprintf(out, "Error code:       0x%08lx\n", info->resCode);
+            out += sprintf(out, "codice errore:       0x%08lx\n", info->resCode);
             break;
         case ERRF_ERRTYPE_EXCEPTION:
             out += ERRF_FormatGenericInfo(out, info);
@@ -243,7 +243,7 @@ static void ERRF_DisplayError(ERRF_FatalErrInfo *info, bool continueAfterErrdisp
 {
     Draw_Lock();
 
-    u32 posY = Draw_DrawString(10, 10, COLOR_RED, "An error occurred (ErrDisp)");
+    u32 posY = Draw_DrawString(10, 10, COLOR_RED, "ce stato un problema (ErrDisp)");
     char buf[0x400];
 
     ERRF_FormatError(buf, info, false);
@@ -253,7 +253,7 @@ static void ERRF_DisplayError(ERRF_FatalErrInfo *info, bool continueAfterErrdisp
     if(continueAfterErrdisp)
         posY = Draw_DrawString(10, posY + SPACING_Y, COLOR_TITLE, "Press any button to continue.\nThere is a high chance that it crashed.\nTo reboot, press A + B + X + Y + Start.");
     else
-        posY = Draw_DrawString(10, posY + SPACING_Y, COLOR_WHITE, "Press any button to reboot.");
+        posY = Draw_DrawString(10, posY + SPACING_Y, COLOR_BLUE, "premi un qualsiasi tasto per riavviare.");
 
     Draw_FlushFramebuffer();
     Draw_Unlock();

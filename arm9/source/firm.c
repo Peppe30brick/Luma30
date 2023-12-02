@@ -191,7 +191,7 @@ u32 loadNintendoFirm(FirmwareType *firmType, FirmwareSource nandType, bool loadF
     if(!ISN3DS && *firmType == NATIVE_FIRM && firm->section[0].address == (u8 *)0x1FF80000)
     {
         //We can't boot < 3.x EmuNANDs
-        if(nandType != FIRMWARE_SYSNAND) error("Un EmuNAND vecchia e non supportata è stata individuata.\nCustomLuma3DS non è capace di avviarla.");
+        if(nandType != FIRMWARE_SYSNAND) error("Un EmuNAND vecchia e non supportata è stata individuata.\nPeppe30_luma3ds non è capace di avviarla.");
 
         //If you want to use SAFE_FIRM on 1.0, use Luma from NAND & comment this line:
         if(isSafeMode) error("SAFE_MODE non è supportato su 1.x/2.x FIRM.");

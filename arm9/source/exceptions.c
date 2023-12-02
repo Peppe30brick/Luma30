@@ -85,7 +85,7 @@ void detectAndProcessExceptionDumps(void)
 
     initScreens();
 
-    drawString(true, 10, 10, COLOR_RED, "An exception occurred");
+    drawString(true, 10, 10, COLOR_RED, "ce stato un errore");
     u32 posY;
     if(dumpHeader->processor == 11) posY = drawFormattedString(true, 10, 30, COLOR_YELLOW, "Processor:       Arm11 (core %u)", dumpHeader->core);
     else posY = drawString(true, 10, 30, COLOR_YELLOW, "Processor:       Arm9");
@@ -159,7 +159,7 @@ void detectAndProcessExceptionDumps(void)
 
     u32 mode = regs[16] & 0xF;
     if(dumpHeader->type == 3 && (mode == 7 || mode == 11))
-        posY = drawString(true, 10, posY + SPACING_Y, COLOR_YELLOW, "Incorrect dump: failed to dump code and/or stack") + SPACING_Y;
+        posY = drawString(true, 10, posY + SPACING_Y, COLOR_YELLOW, "failed il file dump non e stato creato") + SPACING_Y;
 
     u32 posYBottom = drawString(false, 10, 10, COLOR_WHITE, "Stack dump:") + SPACING_Y;
 
@@ -171,7 +171,7 @@ void detectAndProcessExceptionDumps(void)
             drawFormattedString(false, 10 + 10 * SPACING_X + 3 * i * SPACING_X, posYBottom, COLOR_WHITE, "%02X", *stackDump);
     }
 
-    static const char *choiceMessage[] = {"Press A to save the crash dump", "Press any other button to shutdown"};
+    static const char *choiceMessage[] = {"premi A per salvare il crash in un file dump", "premi qualsiasi altro tasto per spegnere"};
 
     drawString(true, 10, posY + SPACING_Y, COLOR_WHITE, choiceMessage[0]);
     drawString(true, 10, posY + SPACING_Y + SPACING_Y , COLOR_WHITE, choiceMessage[1]);
@@ -194,9 +194,9 @@ void detectAndProcessExceptionDumps(void)
         posY = drawString(true, 10, posY + SPACING_Y, COLOR_WHITE, "You can find the dump in the following file:");
         posY = drawFormattedString(true, 10, posY + SPACING_Y, COLOR_WHITE, "%s:/luma/%s", isSdMode ? "SD" : "CTRNAND", path) + SPACING_Y;
     }
-    else posY = drawString(true, 10, posY + SPACING_Y, COLOR_RED, "Error writing the dump file");
+    else posY = drawString(true, 10, posY + SPACING_Y, COLOR_RED, "errore il file dump non e stato creato");
 
-    drawString(true, 10, posY + SPACING_Y, COLOR_WHITE, "Press any button to shutdown");
+    drawString(true, 10, posY + SPACING_Y, COLOR_GREEN, "premi qualsiasi tasto per spegnere");
 
     waitInput(false);
 
