@@ -52,14 +52,15 @@
 #include "shell.h"
 #include "menus/quick_switchers.h"
 #include "volume.h"
+#include "menus/streaming.h"
 #include "menus/chainloader.h"
 #include "config_template_ini.h"
 #include "configExtra_ini.h"
 
 u32 menuCombo = 0;
 bool isHidInitialized = false;
-u32 mcuFwVersion = 0;
 bool rosalinaOpen = false;
+u32 mcuFwVersion = 0;
 
 void menuToggleLeds(void)
 {         
@@ -83,11 +84,14 @@ void menuMakeLedDabadeedabada(void)
 }
 
 void ledOffStandby(void)
-{  
+{
     mcuHwcInit();
     u8 off = 0;
     u8 Off = 3;
     MCUHWC_WriteRegister(0x28, &off, 1);
+    MCUHWC_WriteRegister(0x2A, &off, 1);
+    MCUHWC_WriteRegister(0x2B, &off, 1);
+    MCUHWC_WriteRegister(0x2C, &off, 1);
     MCUHWC_WriteRegister(0x29, &Off, 1);
     mcuHwcExit();
 }
@@ -350,7 +354,7 @@ void menuThreadMain(void)
 
         if(((scanHeldKeys() & menuCombo) == menuCombo) && !rosalinaOpen && !g_blockMenuOpen)
         {
-            openRosalina();
+            openRosalina();      
         }
         
         // instant reboot combo key
@@ -369,7 +373,6 @@ void menuThreadMain(void)
             mcuHwcExit();  
             botStatus = (result >> 5) & 1; // right shift result to bit 5 ("Bottom screen backlight on") and perform bitwise AND with 1
 
-           // svcKernelSetState(0x10000, 2); // unblock gsp
             gspLcdInit();
             if(botStatus)
             {
@@ -380,7 +383,6 @@ void menuThreadMain(void)
                 GSPLCD_PowerOnBacklight(BIT(GSP_SCREEN_BOTTOM));
             }
             gspLcdExit();
-           // svcKernelSetState(0x10000, 2); // block gsp again
             while (scanHeldKeys() & (KEY_SELECT | KEY_START));
         }
         
@@ -452,7 +454,7 @@ static void menuDraw(Menu *menu, u32 selected)
 
     Result mcuInfoRes = menuUpdateMcuInfo();
 
-    svcGetSystemInfo(&out, 0x10000, 8);
+    svcGetSystemInfo(&out, 0x10000, 0);
     version = (u32)out;
 
     svcGetSystemInfo(&out, 0x10000, 1);
@@ -461,10 +463,10 @@ static void menuDraw(Menu *menu, u32 selected)
     svcGetSystemInfo(&out, 0x10000, 0x200);
     isRelease = (bool)out;
 
-    if(GET_VERSION_REVISION1(version) == 0)
-        sprintf(versionString, "v%lu.%lu", GET_VERSION_MAJOR1(version), GET_VERSION_MINOR1(version));
+    if(GET_VERSION_REVISION(version) == 0)
+        sprintf(versionString, "v%lu.%lu", GET_VERSION_MAJOR(version), GET_VERSION_MINOR(version));
     else
-        sprintf(versionString, "v%lu.%lu.%lu", GET_VERSION_MAJOR1(version), GET_VERSION_MINOR1(version), GET_VERSION_REVISION1(version));
+        sprintf(versionString, "v%lu.%lu.%lu", GET_VERSION_MAJOR(version), GET_VERSION_MINOR(version), GET_VERSION_REVISION(version));
 
     Draw_DrawString(10, 10, COLOR_TITLE, menu->title);
     u32 numItems = menuCountItems(menu);

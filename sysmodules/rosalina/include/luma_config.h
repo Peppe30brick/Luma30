@@ -30,7 +30,6 @@
 #include <3ds/types.h>
 #include "luma_shared_config.h"
 #include "utils.h"
-#include "volume.h"
 
 #define CONFIG(a)        (((cfg->config >> (a)) & 1) != 0)
 #define MULTICONFIG(a)   ((cfg->multiConfig >> (2 * (a))) & 3)
@@ -69,6 +68,5 @@ enum multiOptions
 void LumaConfig_ConvertComboToString(char *out, u32 combo);
 Result LumaConfig_SaveSettings(void);
 void LumaConfig_RequestSaveSettings(void);
-Result LumaConfig_SavePerformanceSettings(bool homeBrew, bool maxAppMem, bool core2);
 
 #endif

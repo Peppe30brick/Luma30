@@ -132,7 +132,6 @@ u32 installK11Extension(u8 *pos, u32 size, bool needToInitSd, u32 baseK11VA, u32
             u16 configFormatVersionMajor, configFormatVersionMinor;
             u32 config, multiConfig, bootConfig;
             u32 splashDurationMsec;
-            s8 volumeSliderOverride;
             u64 hbldr3dsxTitleId;
             u32 rosalinaMenuCombo;
             u32 pluginLoaderFlags;
@@ -145,11 +144,7 @@ u32 installK11Extension(u8 *pos, u32 size, bool needToInitSd, u32 baseK11VA, u32
             u8 autobootCtrAppmemtype;
 
             u16 launchedPath[80+1];
-            
-            u8 FversionMajor;
-            u8 FversionMinor;
-            u8 FversionBuild;
-        } info;     
+        } info;
     };
 
     static const u8 patternHook1[] = {0x02, 0xC2, 0xA0, 0xE3, 0xFF}; //MMU setup hook
@@ -220,7 +215,6 @@ u32 installK11Extension(u8 *pos, u32 size, bool needToInitSd, u32 baseK11VA, u32
     info->multiConfig = configData.multiConfig;
     info->bootConfig = configData.bootConfig;
     info->splashDurationMsec = configData.splashDurationMsec;
-    info->volumeSliderOverride = configData.volumeSliderOverride;
     info->hbldr3dsxTitleId = configData.hbldr3dsxTitleId;
     info->rosalinaMenuCombo = configData.rosalinaMenuCombo;
     info->pluginLoaderFlags = configData.pluginLoaderFlags;
@@ -232,10 +226,6 @@ u32 installK11Extension(u8 *pos, u32 size, bool needToInitSd, u32 baseK11VA, u32
     info->versionMajor = VERSION_MAJOR;
     info->versionMinor = VERSION_MINOR;
     info->versionBuild = VERSION_BUILD;
-    info->FversionMajor = FVERSION_MAJOR; // version spoofing
-    info->FversionMinor = FVERSION_MINOR;
-    info->FversionBuild = FVERSION_BUILD;
-
 
     if(ISRELEASE) info->flags = 1;
     if(ISN3DS) info->flags |= 1 << 4;
@@ -285,7 +275,7 @@ u32 patchKernel11(u8 *pos, u32 size, u32 baseK11VA, u32 *arm11SvcTable, u32 *arm
     if(off == NULL)
         return 1;
 
-    off[-6] = 0xE12FFF7E; // bkpt #0xffe
+    off[-6] = 0xE12FFF7E;
 
     //Redirect enableUserExceptionHandlersForCPUExc (= true)
     for(off = arm11ExceptionsPage; *off != 0x96007F9; off++);
@@ -1005,33 +995,6 @@ u32 patchReadFileSHA256Vtab11(u8 *pos, u32 size, u32 process9MemAddr)
     return 0;
 }
 
-#if 0
-
-this is a test 
-u32 patchNandInit(u8 *pos, u32 size)
-{
-    static const u8 pattern[] = {0x31, 0x00, 0x38, 0x00, 0x02, 0xAA};
-    static const u8 pattern1[] = {0XFA, 0X38, 0x44, 0xD1, 0X28, 0X00};
-    
-    u16 *off = (u16 *)memsearch(pos, pattern, size, sizeof(pattern));
-    
-    if (off == NULL) return 1;
-    
-    off[9] = 0x2000; // movs r0, #0
-    off[10] = 0xe7e3; // b -54 ; return
-    
-
-    u16 *off2 = (u16 *)memsearch(pos, pattern1, size, sizeof(pattern1));
-    
-    if (off2 == NULL) return 1;
-    
-    off2[6] = 0xd000;
-    
-    return 0;
-}
-
-#endif
-
 u32 patchNandInit(u8 *pos, u32 size)
 {
     static const u8 pattern[] = {0x31, 0x00, 0x38, 0x00, 0x02, 0xAA};
@@ -1045,7 +1008,7 @@ u32 patchNandInit(u8 *pos, u32 size)
     
     return 0;
 }
- 
+
 u32 patchCidInit(u8 *pos, u32 size)
 {
     static const u8 pattern[] = {0x31, 0x00, 0x38, 0x00, 0x02, 0xAA};
@@ -1054,22 +1017,13 @@ u32 patchCidInit(u8 *pos, u32 size)
     
     if (off == NULL) return 1;
     
-    off[5] = 0x2100; // mov r1, #0
-    off[6] = 0x2001; // mov r0, #1 ...needs future testing...
-    off[7] = 0xe7e6; // b -50; return
+    // off[5] = 0x0039; //mov ro, r4
+   // off[7] = 0xe7e6; //mov ro, r4
+  //  off[7] = 0xb570; // movs r0, #0
+   // off[8] = 0x2001; // movs r0, #0
+    off[9] = 0x2700; // movs r0, #0
+    off[10] = 0xe7e3; // b -54 ; return
+   // off[11] = 0xe001; // b -54 ; return
      
-    return 0;
-}
-
-u32 nandTypoFix(u8 *pos, u32 size)
-{
-    static const u8 pattern[] = {0X28, 0X00, 0x61, 0x7A, 0X00, 0X29};
-    
-    u16 *off = (u16 *)memsearch(pos, pattern, size, sizeof(pattern));
-    
-    if (off == NULL) return 1;
-    
-    off[12] = 0xe02b; // b +35
-    
     return 0;
 }

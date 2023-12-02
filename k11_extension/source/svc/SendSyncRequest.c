@@ -49,15 +49,6 @@ Result SendSyncRequestHook(Handle handle)
 
     if(isValidClientSession)
     {
-        if(CONFIG(NOERRDISPINSTANTREBOOT))
-        {
-           SessionInfo *parentInfo = SessionInfo_Lookup(clientSession->parentSession);
-           if (parentInfo != NULL && (strcmp(parentInfo->name, "cfg:nor") == 0))
-           {
-               skip = true;
-               cmdbuf[1] = -1;
-           }           
-        }
         switch (cmdbuf[0])
         {
             case 0x10042:

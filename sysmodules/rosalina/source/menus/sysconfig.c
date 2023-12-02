@@ -55,7 +55,7 @@ Menu sysconfigMenu = {
         { "Toggle Power Button", METHOD, .method=&SysConfigMenu_TogglePowerButton },
         { "Toggle power to card slot", METHOD, .method=&SysConfigMenu_ToggleCardIfPower},
         { "Permanent Brightness Recalibration", METHOD, .method = &Luminance_RecalibrateBrightnessDefaults },
-        { "Software Volume Control", METHOD, .method = &AdjustVolume },
+        { "Software Volume Control", METHOD, .method = &Volume_ControlVolume },
         { "Extra Config...", MENU, .menu = &configExtraMenu },
         { "Tips", METHOD, .method = &SysConfigMenu_Tip },
         {},

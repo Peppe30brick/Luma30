@@ -55,7 +55,7 @@ static bool switchToMainDir(bool isSd)
         {
             if (f_mkdir(mainDir) != FR_OK)
             {
-                error("Failed to create luma directory.");
+                error("Errore nel tentativo di creare un percorso di luma.");
                 return false;
             }
             return switchToMainDir(isSd);
@@ -104,7 +104,7 @@ bool remountCtrNandPartition(bool switchMainDir)
         nandInitialized = res == FR_OK;
         if (res != FR_OK)
         {
-            error("f_mount returned %d", res);
+            error("f_mount ritornato a %d", res);
         }
     }
 
@@ -323,7 +323,7 @@ bool payloadMenu(char *path, bool *hasDisplayedMenu)
         *hasDisplayedMenu = true;
 
         drawString(true, 10, 10, COLOR_TITLE, "CustomLuma3DS chainloader");
-        drawString(true, 10, 10 + SPACING_Y, COLOR_TITLE, "Press A to select, START to quit");
+        drawString(true, 10, 10 + SPACING_Y, COLOR_TITLE, "Premi A per selezionare, START per uscire");
 
         for(u32 i = 0, posY = 10 + 3 * SPACING_Y, color = COLOR_GREEN; i < payloadNum; i++, posY += SPACING_Y)
         {
@@ -535,12 +535,13 @@ bool doLumaUpgradeProcess(void)
     ok2 = backupEssentialFiles();
 
     // Clean up some of the old files
+
     fileDelete("sdmc:/luma/lumae.ini");
     fileDelete("nand:/rw/luma/lumae.ini");
+    fileDelete("sdmc:/luma/config.bin");
+    fileDelete("nand:/rw/luma/config.bin");
     fileDelete("sdmc:/luma/configExtra.ini");
     fileDelete("nand:/rw/luma/configExtra.ini");
-  //  fileDelete("sdmc:/luma/config.bin");
-  //  fileDelete("nand:/rw/luma/config.bin");
 
 #if 0
     if (isSdMode)

@@ -22,7 +22,7 @@ export HBLDR_DEFAULT_3DSX_TID ?= 000400000D921E00
 export HBLDR_DEFAULT_3DSX_TITLE_NAME ?= "hblauncher_loader"
 
 NAME		:=	$(notdir $(CURDIR))
-REVISION	:=	v1.1.0
+REVISION	:=	v1.0.1-ITA
 
 SUBFOLDERS	:=	sysmodules arm11 arm9 k11_extension
 
@@ -46,7 +46,7 @@ boot.firm:	$(SUBFOLDERS)
 	@echo built... $(notdir $@)
 
 boot.3dsx:
-	@curl -sSfLO "https://github.com/cooolgamer/the-pirate-launcher/releases/latest/download/$@"
+	@curl -sSfLO "https://github.com/Alexyo21/the-pirate-launcher/releases/latest/download/$@"
 	@echo downloaded... $(notdir $@)
 
 $(SUBFOLDERS):

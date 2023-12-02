@@ -52,7 +52,7 @@
 #include "shell.h"
 #include "task_runner.h"
 #include "plugin.h"
-#include "volume.h"
+#include "menus/streaming.h"
 #include "config_template_ini.h"
 #include "configExtra_ini.h"
 
@@ -77,15 +77,14 @@ void __wrap_exit(int rc)
     __libc_fini_array();
 
     // Kernel will take care of it all
-    /*
        
     pmDbgExit();
     acExit();
     fsExit();
     svcCloseHandle(*fsRegGetSessionHandle());
     srvExit();
-    __sync_fini();*/
-    
+    __sync_fini();
+
     svcExitProcess();
 }
 
@@ -189,17 +188,17 @@ static void handleShellNotification(u32 notificationId)
     
     if (notificationId == 0x213)
     {
-        if (configExtra.suppressLeds)
-        {
-            ScreenFilter_SuppressLeds();
-        }
-        
         // Shell opened
         // Note that this notification is also fired on system init.
         // Sequence goes like this: MCU fires notif. 0x200 on shell open
         // and shell close, then NS demuxes it and fires 0x213 and 0x214.
         handleShellOpened();
-        menuShouldExit = false;  
+        menuShouldExit = false;
+                
+        if (configExtra.suppressLeds)
+        {
+            ScreenFilter_SuppressLeds();
+        }
 
         if (wifiOnBeforeSleep && cutWifiInSleep && configExtra.cutSleepWifi && isServiceUsable("nwm::EXT"))
         {
@@ -210,19 +209,19 @@ static void handleShellNotification(u32 notificationId)
     }  
     else
     {
-        if (configExtra.turnLedsOffStandby)
-        {
-            ledOffStandby();
-        }
-        
         // Shell closed
         menuShouldExit = true;
         
+        if (configExtra.suppressLeds && configExtra.turnLedsOffStandby)
+        {
+           ledOffStandby();
+        }
+       
         if (cutWifiInSleep && configExtra.cutSleepWifi)
         {      
             u8 wireless = (*(vu8 *)((0x10140000 | (1u << 31)) + 0x180));
 
-            if (wireless && isServiceUsable("nwm::EXT"))
+            if (isServiceUsable("nwm::EXT") && wireless)
             {
                 wifiOnBeforeSleep = true;
                 nwmExtInit();
@@ -235,6 +234,7 @@ static void handleShellNotification(u32 notificationId)
             }
         }
     }
+
 }
 
 static void handlePreTermNotification(u32 notificationId)
@@ -314,9 +314,7 @@ static void cutPowerToCardSlotWhenTWLCard(void)
 {
     FS_CardType card;
     bool status;
-    
-    if (R_SUCCEEDED(FSUSER_GetCardType(&card)) && card == 1)
-    {
+    if (R_SUCCEEDED(FSUSER_GetCardType(&card)) && card == 1){
         FSUSER_CardSlotPowerOff(&status);
     }
 }
@@ -326,7 +324,6 @@ int main(void)
 {
     Sleep__Init();
     PluginLoader__Init();
-    
     ConfigExtra_ReadConfigExtra();
     if (configExtra.cutSlotPower)
     {
@@ -338,14 +335,13 @@ int main(void)
     CFGU_GetSystemModel(&sysModel);
     cfguExit();
     hasTopScreen = (sysModel != 3); // 3 = o2DS
-    
+
     if (R_FAILED(svcCreateEvent(&preTerminationEvent, RESET_STICKY)))
         svcBreak(USERBREAK_ASSERT);
 
     Draw_Init();
     Cheat_SeedRng(svcGetSystemTick());
     ScreenFiltersMenu_LoadConfig();
-    LoadConfig();
 
     MyThread *menuThread = menuCreateThread();
     MyThread *taskRunnerThread = taskRunnerCreateThread();

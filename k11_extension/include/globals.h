@@ -150,7 +150,6 @@ typedef struct CfwInfo
     u16 configFormatVersionMajor, configFormatVersionMinor;
     u32 config, multiConfig, bootConfig;
     u32 splashDurationMsec;
-    s8 volumeSliderOverride;
     u64 hbldr3dsxTitleId;
     u32 rosalinaMenuCombo;
     u32 pluginLoaderFlags;
@@ -163,16 +162,7 @@ typedef struct CfwInfo
     u8 autobootCtrAppmemtype;
 
     u16 launchedPath[80+1];
-    
-    u8 FversionMajor;
-    u8 FversionMinor;
-    u8 FversionBuild;
 } CfwInfo;
-
-typedef struct FakeInfo
-{
-    
-} FakeInfo;
 
 extern CfwInfo cfwInfo;
 extern u32 kextBasePa;

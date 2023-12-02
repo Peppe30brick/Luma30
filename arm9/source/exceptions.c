@@ -87,8 +87,8 @@ void detectAndProcessExceptionDumps(void)
 
     drawString(true, 10, 10, COLOR_RED, "An exception occurred");
     u32 posY;
-    if(dumpHeader->processor == 11) posY = drawFormattedString(true, 10, 30, COLOR_WHITE, "Processor:       Arm11 (core %u)", dumpHeader->core);
-    else posY = drawString(true, 10, 30, COLOR_WHITE, "Processor:       Arm9");
+    if(dumpHeader->processor == 11) posY = drawFormattedString(true, 10, 30, COLOR_YELLOW, "Processor:       Arm11 (core %u)", dumpHeader->core);
+    else posY = drawString(true, 10, 30, COLOR_YELLOW, "Processor:       Arm9");
 
     if(dumpHeader->type == 2)
     {
